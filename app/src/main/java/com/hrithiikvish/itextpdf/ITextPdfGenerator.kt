@@ -9,11 +9,15 @@ import android.os.Environment
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import com.hrithiikvish.itextpdf.MainActivity.Companion.movieList
+import com.itextpdf.kernel.colors.Color
+import com.itextpdf.kernel.colors.ColorConstants
 import com.itextpdf.kernel.geom.PageSize
 import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfWriter
+import com.itextpdf.kernel.pdf.action.PdfAction
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Cell
+import com.itextpdf.layout.element.Link
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.element.Table
 import com.itextpdf.layout.property.UnitValue
@@ -22,6 +26,8 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 class ITextPdfGenerator(private val context: Context) {
+
+    val imdbBaseUrl = "https://www.imdb.com/title/"
 
     suspend fun generatePdf() {
 
@@ -47,12 +53,18 @@ class ITextPdfGenerator(private val context: Context) {
                     moviesTable.addCell(Cell().add(Paragraph("IMDB ID")).setPadding(5f))
 
                     movieList.forEach { movie ->
+
+                        val imdbLink = Link(
+                            movie.imdb,
+                            PdfAction.createURI("$imdbBaseUrl${movie.imdb}\\")
+                        )
+
                         moviesTable.addCell(
                             Cell().add(
                                 Paragraph(movie.title.substringBefore(".1080p").split(".").joinToString(" "))
                             ).setPadding(5f))
                         moviesTable.addCell(Cell().add(Paragraph(movie.size)).setPadding(5f))
-                        moviesTable.addCell(Cell().add(Paragraph(movie.imdb)).setPadding(5f))
+                        moviesTable.addCell(Cell().add(Paragraph(imdbLink).setFontColor(ColorConstants.BLUE)).setPadding(5f))
                     }
 
                     doc.add(moviesTable)
